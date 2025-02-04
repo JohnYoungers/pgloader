@@ -145,18 +145,21 @@
                 (ftable    (find-table fschema ftable-name))
                 (col-name  (apply-identifier-case col))
                 (fcol-name (apply-identifier-case fcol))
-                (pg-fkey
-                 (make-fkey :name (apply-identifier-case fkey-name)
-                            :table table
-                            :columns nil
-                            :foreign-table ftable
-                            :foreign-columns nil
-                            :update-rule fk-update-rule
-                            :delete-rule fk-delete-rule))
-                (fkey
-                 (maybe-add-fkey table fkey-name pg-fkey :key #'fkey-name)))
-           (push-to-end col-name (fkey-columns fkey))
-           (push-to-end fcol-name (fkey-foreign-columns fkey)))
+                ;; Find an existing foreign key first
+                (fkey      (or (find-fkey table fkey-name)
+                                (make-fkey :name (apply-identifier-case fkey-name)
+                                          :table table
+                                          :columns nil
+                                          :foreign-table ftable
+                                          :foreign-columns nil
+                                          :update-rule fk-update-rule
+                                          :delete-rule fk-delete-rule))))
+            ;; Ensure the FKey is properly stored
+            (unless (find-fkey table fkey-name)
+              (maybe-add-fkey table fkey-name fkey :key #'fkey-name))
+            ;; Append to existing FKey
+            (push-to-end col-name (fkey-columns fkey))
+            (push-to-end fcol-name (fkey-foreign-columns fkey)))
      :finally (return catalog)))
 
 
