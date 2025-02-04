@@ -155,6 +155,11 @@
                             :delete-rule fk-delete-rule))
                 (fkey
                  (maybe-add-fkey table fkey-name pg-fkey :key #'fkey-name)))
+
+           ;; Print debug info
+           (format t "Foreign Key: ~A → ~A.~A  (Existing: ~A)~%"
+                  fkey-name ftable fcol-name (not (eq fkey pg-fkey)))
+
            (push-to-end col-name (fkey-columns fkey))
            (push-to-end fcol-name (fkey-foreign-columns fkey)))
      :finally (return catalog)))
