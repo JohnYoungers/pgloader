@@ -43,6 +43,8 @@
 
 (defpackage #:pgloader.catalog
   (:use #:cl #:pgloader.params #:pgloader.quoting)
+  (:import-from #:pgloader.monitor
+                #:log-message)
   (:export #:format-create-sql
            #:format-drop-sql
            #:format-default-value
@@ -431,6 +433,8 @@
         #:pgloader.connection #:pgloader.catalog)
   (:import-from #:cl-postgres
                 #:database-error-context)
+  (:import-from #:pgloader.monitor
+                #:log-message)
   (:export #:pgsql-connection
            #:pgconn-use-ssl
            #:pgconn-table-name
