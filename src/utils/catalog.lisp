@@ -418,8 +418,15 @@
 (defmethod maybe-add-fkey ((table table) fkey-name fkey &key key (test #'string=))
   "Add the foreign key FKEY to the table-fkey-list of TABLE unless it
   already exists, and return the FKEY object."
-  (let ((current-fkey (find-fkey table fkey-name :key key :test test)))
-    (or current-fkey (add-fkey table fkey))))
+  (let ((current-fkey (find fkey-name (table-fkey-list table) :key key :test test)))
+    (if current-fkey
+        (progn
+          ;; If the foreign key already exists, update its columns
+          (setf (fkey-columns current-fkey)
+                (append (fkey-columns current-fkey) (fkey-columns fkey)))
+          current-fkey)
+        ;; Otherwise, add the new foreign key
+        (add-fkey table fkey))))
 
 
 ;;;
