@@ -155,8 +155,13 @@
                             :delete-rule fk-delete-rule))
                 (fkey
                  (maybe-add-fkey table fkey-name pg-fkey :key #'fkey-name)))
-           (push-to-end col-name (fkey-columns fkey))
-           (push-to-end fcol-name (fkey-foreign-columns fkey)))
+           (log-message :debug "Processing foreign key ~a for table ~a" fkey-name table-name)
+           (when fkey
+             (log-message :debug "Updating foreign key ~a with columns ~a and foreign columns ~a" fkey-name col-name fcol-name)
+             (unless (member col-name (fkey-columns fkey) :test #'string=)
+               (push-to-end col-name (fkey-columns fkey)))
+             (unless (member fcol-name (fkey-foreign-columns fkey) :test #'string=)
+               (push-to-end fcol-name (fkey-foreign-columns fkey)))))
      :finally (return catalog)))
 
 
