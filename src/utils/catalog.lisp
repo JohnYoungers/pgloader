@@ -411,11 +411,11 @@
   "Add FKEY to TABLE and return the TABLE."
   (push-to-end fkey (table-fkey-list table)))
 
-(defmethod find-fkey ((table table) fkey-name &key key (test #'string=))
+(defmethod find-fkey ((table table) fkey-name &key (key #'fkey-name) (test #'string=))
   "Find FKEY-NAME in TABLE and return the FKEY object of this name."
   (find fkey-name (table-fkey-list table) :key key :test test))
 
-(defmethod maybe-add-fkey ((table table) fkey-name fkey &key key (test #'string=))
+(defmethod maybe-add-fkey ((table table) fkey-name fkey &key (key #'fkey-name) (test #'string=))
   "Add the foreign key FKEY to the table-fkey-list of TABLE unless it
   already exists, and return the FKEY object."
   (let ((current-fkey (find-fkey table fkey-name :key key :test test)))
