@@ -156,32 +156,6 @@
                                :log-level :sql
                                :client-min-messages client-min-messages)))
 
-(defun process-foreign-keys (table foreign-keys)
-  "Process and group foreign keys by name before adding them to the table."
-  (log-message :debug "Processing foreign keys for table ~a" (table-name table))
-  (let ((fkey-groups (make-hash-table :test 'equal)))
-    ;; Group foreign keys by name
-    (dolist (fkey foreign-keys)
-      (let* ((fkey-name (fkey-name fkey))
-             (existing-fkey (gethash fkey-name fkey-groups)))
-        (if existing-fkey
-            (progn
-              (log-message :debug "Updating existing foreign key ~a with new columns" fkey-name)
-              ;; Update existing foreign key with new columns
-              (setf (fkey-columns existing-fkey)
-                    (append (fkey-columns existing-fkey) (fkey-columns fkey)))
-              (setf (fkey-foreign-columns existing-fkey)
-                    (append (fkey-foreign-columns existing-fkey) (fkey-foreign-columns fkey))))
-            (progn
-              (log-message :debug "Adding new foreign key ~a to group" fkey-name)
-              ;; Add new foreign key to the group
-              (setf (gethash fkey-name fkey-groups) fkey)))))
-    ;; Add grouped foreign keys to the table
-    (maphash (lambda (fkey-name fkey)
-               (log-message :debug "Adding grouped foreign key ~a to table" fkey-name)
-               (maybe-add-fkey table fkey-name fkey))
-             fkey-groups)))
-
 
 ;;;
 ;;; DDL Utilities: TRUNCATE, ENABLE/DISABLE triggers
@@ -259,7 +233,7 @@
   (loop :for table :in (table-list catalog)
         :do (log-message :debug "Processing table ~a" (table-name table))
         :do (loop :for fkey :in (table-fkey-list table)
-                  :do (log-message :debug "Foreign key ~a details: ~a" (fkey-name fkey) fkey))))
+                  :do (log-message :debug "Foreign key ~a columns: ~a" (fkey-name fkey) (fkey-columns fkey)))))
 
 
 
