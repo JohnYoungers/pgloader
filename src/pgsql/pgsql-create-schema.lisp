@@ -256,26 +256,10 @@
 (defun create-pgsql-fkeys (catalog &key (section :post) label log-level)
   "Actually create the Foreign Key References that were declared in the
    MySQL database"
-  (let ((fk-sql-list
-         (loop :for table :in (table-list catalog)
-               :do (process-foreign-keys table (table-fkey-list table))
-               :append (loop :for fkey :in (table-fkey-list table)
-                             ;; we might have loaded fkeys referencing tables that
-                             ;; have not been included in (or have been excluded
-                             ;; from) the load
-                             :unless (and (fkey-table fkey)
-                                          (fkey-foreign-table fkey))
-                             :do (log-message :debug "Skipping foreign key ~a" fkey)
-                             :when (and (fkey-table fkey)
-                                        (fkey-foreign-table fkey))
-                             :collect (format-create-sql fkey))
-               :append (loop :for index :in (table-index-list table)
-                             :do (loop :for fkey :in (index-fk-deps index)
-                                       :for sql := (format-create-sql fkey)
-                                       :do (log-message :debug "EXTRA FK DEPS! ~a" sql)
-                                       :collect sql)))))
-    ;; and now execute our list
-    (pgsql-execute-with-timing section label fk-sql-list :log-level log-level)))
+  (loop :for table :in (table-list catalog)
+        :do (log-message :debug "Processing table ~a" (table-name table))
+        :do (loop :for fkey :in (table-fkey-list table)
+                  :do (log-message :debug "Foreign key ~a details: ~a" (fkey-name fkey) fkey))))
 
 
 

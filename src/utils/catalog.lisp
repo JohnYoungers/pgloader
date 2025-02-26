@@ -507,3 +507,4 @@
                      (pgloader.pgsql:pgsql-execute sql)))
                (table-name ,table-name))))
        ,@body)))
+
