@@ -12,14 +12,15 @@ jobs:
       fail-fast: false
     steps:
       - uses: actions/checkout@v4
-      - if: runner.os == 'Linux'
+      - if: matrix.os == 'ubuntu-20.04'
         run: |
-          sudo apt-get update && sudo apt-get install -y libc6
+          sudo apt-get update && sudo apt-get install -y sbcl
+      - if: matrix.os != 'ubuntu-20.04'
+        run: |
           curl -LOs https://sourceforge.net/projects/sbcl/files/sbcl/2.5.3/sbcl-2.5.3-x86-64-linux-binary.tar.bz2
           tar xfj sbcl-2.5.3-x86-64-linux-binary.tar.bz2 && rm sbcl-2.5.3-x86-64-linux-binary.tar.bz2
           cd sbcl-2.5.3-x86-64-linux && sudo sh install.sh
-          sbcl --version
-      - run: make save
+      - run: sbcl --version && make save
       - uses: actions/upload-artifact@v4
         with:
           name: pgloader-${{ matrix.os }}
